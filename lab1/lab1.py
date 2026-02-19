@@ -7,7 +7,7 @@ import math
 ENG_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 RUS_ALPHABET = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
 
-# ===================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====================
+# ===================== ДЕЦИМАЦИЙ =====================
 
 def mod_inverse(a, m):
     for x in range(1, m):
@@ -15,8 +15,6 @@ def mod_inverse(a, m):
             return x
     return None
 
-
-# ===================== МЕТОД ДЕЦИМАЦИЙ =====================
 
 def decimation_encrypt(text, key):
     m = len(ENG_ALPHABET)
@@ -71,6 +69,10 @@ def is_valid_russian_key(key):
             return False
     return True
 
+def extract_russian(text):
+    russian_letters = set(RUS_ALPHABET + RUS_ALPHABET.lower())
+    return ''.join(char for char in text if char in russian_letters)
+
 
 def vigenere_encrypt(text, key):
     m = len(RUS_ALPHABET)
@@ -121,6 +123,9 @@ def vigenere_decrypt(text, key):
 
     return result
 
+
+def extract_digits(text):
+    return ''.join(char for char in text if char.isdigit())
 
 # ===================== GUI =====================
 
@@ -190,15 +195,15 @@ class CipherApp:
             return
 
         if self.algorithm.get() == "decimation":
-            if not key.isdigit():
+            if not extract_digits(key):
                 messagebox.showerror("Ошибка", "Ключ должен быть числом.")
                 return
-            result = decimation_encrypt(text, int(key))
+            result = decimation_encrypt(text, int(extract_digits(key)))
         else:
-            if not is_valid_russian_key(key):
+            if not extract_russian(key):
                 messagebox.showerror("Ошибка", "Ключ должен содержать русские буквы.")
                 return
-            result = vigenere_encrypt(text, key)
+            result = vigenere_encrypt(text,extract_russian(key))
 
         self.output_text.delete(1.0, tk.END)
         self.output_text.insert(tk.END, result)
@@ -212,15 +217,15 @@ class CipherApp:
             return
 
         if self.algorithm.get() == "decimation":
-            if not key.isdigit():
+            if not extract_digits(key):
                 messagebox.showerror("Ошибка", "Ключ должен быть числом.")
                 return
-            result = decimation_decrypt(text, int(key))
+            result = decimation_decrypt(text, int(extract_digits(key)))
         else:
-            if not is_valid_russian_key(key):
+            if not extract_russian(key):
                 messagebox.showerror("Ошибка", "Ключ должен содержать русские буквы.")
                 return
-            result = vigenere_decrypt(text, key)
+            result = vigenere_decrypt(text, extract_russian(key))
 
         self.output_text.delete(1.0, tk.END)
         self.output_text.insert(tk.END, result)
